@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+PyCharacterAI
+python-dotenv
+python-multipart
+httpx

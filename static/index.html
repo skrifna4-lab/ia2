@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rubí | The Honest Closer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            background: #050505; 
+            font-family: 'Inter', sans-serif; 
+            background-image: radial-gradient(circle at top right, #400, transparent);
+            color: white;
+        }
+        .orbitron { font-family: 'Orbitron', sans-serif; }
+        .glass { 
+            background: rgba(15, 15, 15, 0.95); 
+            border: 1px solid rgba(255, 0, 0, 0.3); 
+            backdrop-filter: blur(10px); 
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.1); 
+        }
+        .btn-red { 
+            background: linear-gradient(90deg, #ff0000, #800000); 
+            transition: 0.3s; 
+            border: none;
+        }
+        .btn-red:hover { 
+            box-shadow: 0 0 20px #ff0000; 
+            transform: translateY(-2px); 
+        }
+        .btn-topic { 
+            border: 1px solid #ff0000; 
+            color: #ff0000; 
+            transition: 0.2s; 
+            background: rgba(255, 0, 0, 0.05);
+        }
+        .btn-topic:hover { 
+            background: #ff0000; 
+            color: white; 
+            box-shadow: 0 0 15px #ff0000; 
+        }
+        textarea {
+            background: #000 !important;
+            border: 1px solid #333 !important;
+            color: #fff !important;
+        }
+        textarea:focus { border-color: #ff0000 !important; outline: none; }
+        audio { filter: invert(1) hue-rotate(180deg); }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-6">
+    <div class="max-w-xl w-full">
+        <div class="text-center mb-10">
+            <h1 class="orbitron text-5xl font-black text-white italic">RUBÍ<span class="text-red-600">ENGINE</span></h1>
+            <p class="text-zinc-600 text-[10px] tracking-[0.5em] uppercase">V6 // Honest Atomic Sales</p>
+        </div>
+
+        <div class="glass p-8 rounded-[2rem] space-y-6">
+            <div class="space-y-2">
+                <label class="text-red-500 font-bold text-[10px] uppercase tracking-widest ml-1">Data del Producto</label>
+                <textarea id="specs" class="w-full h-32 rounded-2xl p-4 text-sm" placeholder="Ingresa specs técnicas..."></textarea>
+            </div>
+            
+            <button id="mainBtn" onclick="analizar()" class="btn-red w-full py-5 rounded-2xl orbitron font-bold tracking-widest text-lg">SINCRONIZAR</button>
+            
+            <div id="sessionBadge" class="hidden text-center">
+                <span class="font-mono text-[10px] text-red-500 bg-red-950/20 px-4 py-1 rounded-full border border-red-900/50 uppercase tracking-tighter">SESSION-ID: <span id="idLabel"></span></span>
+            </div>
+
+            <div id="menu" class="grid gap-3"></div>
+
+            <div id="output" class="hidden animate-fade-in space-y-4 pt-4 border-t border-red-900/30">
+                <div class="bg-black/60 p-5 rounded-2xl border-l-4 border-red-600">
+                    <p id="textoLog" class="text-sm text-zinc-300 leading-relaxed italic"></p>
+                </div>
+                <audio id="player" controls class="w-full h-10"></audio>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let sessionID = "";
+        async function analizar() {
+            const specs = document.getElementById('specs').value;
+            if(!specs) return;
+            const btn = document.getElementById('mainBtn');
+            btn.innerText = "GENERANDO JSON...";
+            
+            const r = await fetch('/analizar', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ specs })
+            });
+            const data = await r.json();
+            
+            sessionID = data.id_sesion;
+            btn.innerText = "PRODUCTO LISTO";
+            document.getElementById('idLabel').innerText = sessionID;
+            document.getElementById('sessionBadge').classList.remove('hidden');
+
+            const menu = document.getElementById('menu');
+            menu.innerHTML = "";
+            data.temas.forEach(t => {
+                const b = document.createElement('button');
+                b.className = "btn-topic py-3 px-5 rounded-xl text-left font-bold text-xs uppercase tracking-tight";
+                b.innerHTML = `<span>⚡</span> ${t}`;
+                b.onclick = () => hablar(t);
+                menu.appendChild(b);
+            });
+        }
+
+        async function hablar(tema) {
+            const out = document.getElementById('output');
+            out.classList.remove('hidden');
+            document.getElementById('textoLog').innerText = "Rubí preparando el argumento...";
+            const r = await fetch('/hablar_tema', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ tema, id_sesion: sessionID })
+            });
+            const data = await r.json();
+            document.getElementById('textoLog').innerText = data.texto;
+            const p = document.getElementById('player');
+            p.src = data.audio_url;
+            p.play();
+        }
+    </script>
+</body>
+</html>
