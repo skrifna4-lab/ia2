@@ -13,7 +13,7 @@ from PyCharacterAI import get_client
 # =========================
 load_dotenv()
 
-CHARACTER_TOKEN = "39bbdcaee6ca6e36cb5f9b1b7735801c"
+CHARACTER_TOKEN = "5ea845a0dd775d085a1297cb55da32b7fe520c81"
 CHARACTER_ID = "vjOWsEhNWK8yNHEUHx2IYyarX7wryy9nj3MjWElIggw"
 VOICE_ID = "4e98935f-725e-4daa-b5d5-7253ee7098e1"
 
@@ -154,4 +154,5 @@ Usuario dice:
 # =========================
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
 
