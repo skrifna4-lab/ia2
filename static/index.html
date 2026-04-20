@@ -2,129 +2,177 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rubí | The Honest Closer</title>
+    <title>Skrifna OS | Database</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body { 
-            background: #050505; 
-            font-family: 'Inter', sans-serif; 
-            background-image: radial-gradient(circle at top right, #400, transparent);
-            color: white;
-        }
-        .orbitron { font-family: 'Orbitron', sans-serif; }
-        .glass { 
-            background: rgba(15, 15, 15, 0.95); 
-            border: 1px solid rgba(255, 0, 0, 0.3); 
-            backdrop-filter: blur(10px); 
-            box-shadow: 0 0 30px rgba(255, 0, 0, 0.1); 
-        }
-        .btn-red { 
-            background: linear-gradient(90deg, #ff0000, #800000); 
-            transition: 0.3s; 
-            border: none;
-        }
-        .btn-red:hover { 
-            box-shadow: 0 0 20px #ff0000; 
-            transform: translateY(-2px); 
-        }
-        .btn-topic { 
-            border: 1px solid #ff0000; 
-            color: #ff0000; 
-            transition: 0.2s; 
-            background: rgba(255, 0, 0, 0.05);
-        }
-        .btn-topic:hover { 
-            background: #ff0000; 
-            color: white; 
-            box-shadow: 0 0 15px #ff0000; 
-        }
-        textarea {
-            background: #000 !important;
-            border: 1px solid #333 !important;
-            color: #fff !important;
-        }
-        textarea:focus { border-color: #ff0000 !important; outline: none; }
-        audio { filter: invert(1) hue-rotate(180deg); }
+        :root { --neon: #00f3ff; --bg: #020617; }
+        body { background: var(--bg); color: #cbd5e1; font-family: 'monospace'; }
+        .cyber-panel { background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(0, 243, 255, 0.1); border-radius: 24px; }
+        .skrifna-input { background: #0f172a; border: 1px solid #1e293b; color: white; border-radius: 12px; padding: 12px; outline: none; width: 100%; }
+        .btn-main { background: var(--neon); color: #000; font-weight: bold; border-radius: 12px; padding: 12px; transition: 0.3s; width: 100%; text-transform: uppercase; }
+        .btn-main:hover { box-shadow: 0 0 20px var(--neon); }
+        .hidden { display: none; }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-6">
-    <div class="max-w-xl w-full">
-        <div class="text-center mb-10">
-            <h1 class="orbitron text-5xl font-black text-white italic">RUBÍ<span class="text-red-600">ENGINE</span></h1>
-            <p class="text-zinc-600 text-[10px] tracking-[0.5em] uppercase">V6 // Honest Atomic Sales</p>
+<body class="p-4">
+
+    <div id="step-selector" class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/90 backdrop-blur-md">
+        <div class="cyber-panel p-10 w-full max-w-md border-t-4 border-t-cyan-500">
+            <h1 class="text-3xl font-black italic mb-6 text-center text-white">SKRIFNA <span class="text-cyan-500">OS</span></h1>
+            
+            <div id="user-list-container" class="mb-6">
+                <p class="text-[10px] text-slate-500 mb-2 uppercase tracking-widest">Entrar como:</p>
+                <div id="user-list" class="space-y-2 max-h-40 overflow-y-auto pr-2">
+                    </div>
+            </div>
+
+            <button onclick="showLogin()" class="text-[10px] text-cyan-400 hover:underline mb-6 block text-center w-full uppercase">+ Agregar nueva cuenta</button>
+        </div>
+    </div>
+
+    <div id="modal-login" class="fixed inset-0 z-[110] hidden flex items-center justify-center bg-black/80">
+        <div class="cyber-panel p-8 w-full max-w-sm">
+            <h2 class="text-white font-bold mb-4">NUEVA IDENTIDAD</h2>
+            <input id="login-user" type="text" placeholder="ID de Usuario" class="skrifna-input mb-3">
+            <input id="login-token" type="password" placeholder="Token" class="skrifna-input mb-4">
+            <button onclick="login()" class="btn-main">Registrar e Ingresar</button>
+            <button onclick="hideLogin()" class="text-xs text-slate-500 mt-4 block w-full text-center">Cancelar</button>
+        </div>
+    </div>
+
+    <div id="step-dashboard" class="hidden max-w-6xl mx-auto py-10">
+        <header class="flex justify-between items-center mb-10">
+            <h2 class="text-2xl font-bold">Terminal: <span id="welcome-user" class="text-cyan-400"></span></h2>
+            <div class="flex gap-2">
+                <button onclick="showSection('add')" class="bg-slate-800 px-4 py-2 rounded-xl text-xs">Configurar</button>
+                <button onclick="showSection('test')" class="bg-cyan-600 text-black px-4 py-2 rounded-xl text-xs font-bold">Probar</button>
+                <button onclick="location.reload()" class="bg-red-900/30 text-red-500 px-4 py-2 rounded-xl text-xs">Salir</button>
+            </div>
+        </header>
+
+        <div id="section-add" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="cyber-panel p-6">
+                <h3 class="text-xs text-cyan-500 mb-4 font-bold uppercase">Nuevo Alias</h3>
+                <select id="res-type" class="skrifna-input mb-3">
+                    <option value="texto">Modelo de Texto</option>
+                    <option value="voz">Modelo de Voz</option>
+                </select>
+                <input id="res-alias" type="text" placeholder="Alias (ej: Rubi)" class="skrifna-input mb-3">
+                <input id="res-real" type="text" placeholder="ID Real" class="skrifna-input mb-4">
+                <button onclick="saveResource()" class="btn-main">Vincular</button>
+            </div>
+            <div id="inventory" class="cyber-panel p-6 text-xs font-mono"></div>
         </div>
 
-        <div class="glass p-8 rounded-[2rem] space-y-6">
-            <div class="space-y-2">
-                <label class="text-red-500 font-bold text-[10px] uppercase tracking-widest ml-1">Data del Producto</label>
-                <textarea id="specs" class="w-full h-32 rounded-2xl p-4 text-sm" placeholder="Ingresa specs técnicas..."></textarea>
+        <div id="section-test" class="hidden space-y-4">
+            <div class="flex gap-4">
+                <select id="test-m" class="skrifna-input"></select>
+                <select id="test-v" class="skrifna-input"></select>
             </div>
-            
-            <button id="mainBtn" onclick="analizar()" class="btn-red w-full py-5 rounded-2xl orbitron font-bold tracking-widest text-lg">SINCRONIZAR</button>
-            
-            <div id="sessionBadge" class="hidden text-center">
-                <span class="font-mono text-[10px] text-red-500 bg-red-950/20 px-4 py-1 rounded-full border border-red-900/50 uppercase tracking-tighter">SESSION-ID: <span id="idLabel"></span></span>
-            </div>
-
-            <div id="menu" class="grid gap-3"></div>
-
-            <div id="output" class="hidden animate-fade-in space-y-4 pt-4 border-t border-red-900/30">
-                <div class="bg-black/60 p-5 rounded-2xl border-l-4 border-red-600">
-                    <p id="textoLog" class="text-sm text-zinc-300 leading-relaxed italic"></p>
+            <div class="cyber-panel h-96 flex flex-col overflow-hidden">
+                <div id="chat-box" class="flex-1 p-6 overflow-y-auto space-y-4"></div>
+                <div class="p-4 bg-black/40 flex gap-2">
+                    <input id="chat-msg" class="flex-1 bg-transparent outline-none p-2" placeholder="Mensaje...">
+                    <button onclick="sendChat()" class="text-cyan-500 px-4"><i class="fa fa-paper-plane"></i></button>
                 </div>
-                <audio id="player" controls class="w-full h-10"></audio>
             </div>
         </div>
     </div>
 
     <script>
-        let sessionID = "";
-        async function analizar() {
-            const specs = document.getElementById('specs').value;
-            if(!specs) return;
-            const btn = document.getElementById('mainBtn');
-            btn.innerText = "GENERANDO JSON...";
-            
-            const r = await fetch('/analizar', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ specs })
-            });
-            const data = await r.json();
-            
-            sessionID = data.id_sesion;
-            btn.innerText = "PRODUCTO LISTO";
-            document.getElementById('idLabel').innerText = sessionID;
-            document.getElementById('sessionBadge').classList.remove('hidden');
+        let currentUser = "";
 
-            const menu = document.getElementById('menu');
-            menu.innerHTML = "";
-            data.temas.forEach(t => {
-                const b = document.createElement('button');
-                b.className = "btn-topic py-3 px-5 rounded-xl text-left font-bold text-xs uppercase tracking-tight";
-                b.innerHTML = `<span>⚡</span> ${t}`;
-                b.onclick = () => hablar(t);
-                menu.appendChild(b);
+        async function loadUsers() {
+            const res = await fetch('/api/usuarios');
+            const users = await res.json();
+            const list = document.getElementById('user-list');
+            list.innerHTML = users.length ? '' : '<p class="text-slate-600 text-xs italic">No hay cuentas.</p>';
+            users.forEach(u => {
+                list.innerHTML += `<button onclick="selectUser('${u}')" class="w-full text-left p-3 rounded-xl bg-slate-900 hover:bg-cyan-900/30 border border-white/5 transition-all text-sm mb-2">
+                    <i class="fa fa-user-circle text-cyan-500 mr-2"></i> ${u}
+                </button>`;
             });
         }
 
-        async function hablar(tema) {
-            const out = document.getElementById('output');
-            out.classList.remove('hidden');
-            document.getElementById('textoLog').innerText = "Rubí preparando el argumento...";
-            const r = await fetch('/hablar_tema', {
+        function showLogin() { document.getElementById('modal-login').classList.remove('hidden'); }
+        function hideLogin() { document.getElementById('modal-login').classList.add('hidden'); }
+
+        async function login() {
+            const user = document.getElementById('login-user').value;
+            const token = document.getElementById('login-token').value;
+            if(!user || !token) return;
+            await fetch('/api/login', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({user, token}) });
+            selectUser(user);
+        }
+
+        function selectUser(user) {
+            currentUser = user;
+            document.getElementById('step-selector').style.display = 'none';
+            document.getElementById('modal-login').classList.add('hidden');
+            document.getElementById('step-dashboard').classList.remove('hidden');
+            document.getElementById('welcome-user').innerText = user;
+            refreshData();
+        }
+
+        async function saveResource() {
+            const data = {
+                user: currentUser,
+                tipo: document.getElementById('res-type').value,
+                alias: document.getElementById('res-alias').value,
+                real_id: document.getElementById('res-real').value
+            };
+            await fetch('/api/add_resource', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) });
+            refreshData();
+        }
+
+        async function refreshData() {
+            const res = await fetch(`/api/data/${currentUser}`);
+            const data = await res.json();
+            const fill = (obj, id) => {
+                const el = document.getElementById(id);
+                el.innerHTML = '';
+                Object.keys(obj).forEach(k => el.innerHTML += `<option value="${k}">${k}</option>`);
+            };
+            fill(data.modelos, 'test-m');
+            fill(data.voces, 'test-v');
+            document.getElementById('inventory').innerHTML = `<p class="text-cyan-500 mb-2">MODELOS:</p>` + 
+                Object.keys(data.modelos).map(k => `<div>> ${k}</div>`).join('') +
+                `<p class="text-pink-500 mt-4 mb-2">VOCES:</p>` + 
+                Object.keys(data.voces).map(k => `<div>> ${k}</div>`).join('');
+        }
+
+        function showSection(s) {
+            document.getElementById('section-add').className = s === 'add' ? 'grid grid-cols-1 md:grid-cols-2 gap-8' : 'hidden';
+            document.getElementById('section-test').className = s === 'test' ? 'space-y-4' : 'hidden';
+        }
+
+        async function sendChat() {
+            const msg = document.getElementById('chat-msg').value;
+            const m = document.getElementById('test-m').value;
+            const v = document.getElementById('test-v').value;
+            if(!msg) return;
+            renderBubble('Tú', msg, 'justify-end text-cyan-400');
+            document.getElementById('chat-msg').value = '';
+            const res = await fetch('/models/kompleg', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ tema, id_sesion: sessionID })
+                body: JSON.stringify({u: currentUser, m, v, msg})
             });
-            const data = await r.json();
-            document.getElementById('textoLog').innerText = data.texto;
-            const p = document.getElementById('player');
-            p.src = data.audio_url;
-            p.play();
+            const d = await res.json();
+            renderBubble('IA', d.texto, 'justify-start bg-slate-800');
+            if(d.audio) new Audio(d.audio).play();
         }
+
+        function renderBubble(who, txt, cls) {
+            const b = document.getElementById('chat-box');
+            b.innerHTML += `<div class="flex ${cls.split(' ')[0]} animate-pulse-once"><div class="p-3 rounded-2xl max-w-[80%] ${cls.split(' ').slice(1).join(' ')}">
+                <p class="text-[9px] opacity-50 font-bold uppercase">${who}</p><p class="text-sm">${txt}</p>
+            </div></div>`;
+            b.scrollTop = b.scrollHeight;
+        }
+
+        window.onload = loadUsers;
     </script>
 </body>
 </html>
